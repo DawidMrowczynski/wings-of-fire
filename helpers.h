@@ -48,6 +48,7 @@ void level_0(game_state game);
 void level_1(game_state& game);
 void level_2(game_state& game);
 void level_3(game_state& game);
+void level_4(game_state& game);
 
 void end_level(game_state& game);
 
