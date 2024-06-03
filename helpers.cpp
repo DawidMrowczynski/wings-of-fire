@@ -18,6 +18,7 @@ using namespace std;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
+// class for enemys
 Enemy::Enemy(string n, int h, int a1, int a2) : name(n), hp(h), attack1_dmg(a1), attack2_dmg(a2) {}
 
 void Enemy::take_damage(int damage) 
@@ -150,7 +151,7 @@ game_state new_game()
 {
     cout << "Starting a new game...\n";
     game_state game;
-    game.gold = 10;
+    game.gold = 50;
     game.inventory = {"water-bomb"};
     game.honor = 0;
     game.progress = 0;
@@ -178,6 +179,9 @@ void load_level(game_state& game)
                 break;
             case 3:
                 level_3(game);
+                break;
+            case 4:
+                level_4(game);
                 break;
             default:
                 cout << "Unknown level\n";
@@ -255,6 +259,17 @@ void exit_game()
     cout << "Exiting the game...\n";
 }
 
+// shows menu in shop
+void show_menu() 
+{
+    cout << "Welcome to the shop! Here are the items you can buy:\n";
+    cout << "1. First Aid Kit - 10 gold\n";
+    cout << "2. Water Bomb - 20 gold\n";
+    cout << "3. Master Fire Extinguisher - 70 gold\n";
+    cout << "4. Master Firefighter Suit - 70 gold\n";
+    cout << "5. Exit\n";
+}
+
 // return corresponding value for string in map
 int find_value(const map<string, int>& myMap, const string& key) 
 {
@@ -279,6 +294,7 @@ void attack(game_state game, Enemy& target)
         {"old fire extinguisher", 10},
         {"Arin's extinguisher", 20},
         {"rare fire extinguisher", 30},
+        {"Master Fire Extinguisher", 50},
     };
     int dmg = find_value(weapons, game.weapon);
     target.take_damage(dmg);
@@ -290,6 +306,7 @@ int armor_res(game_state& game)
     map<string, int> armors = {
         {"dirty firefighter suit", 2},
         {"Unordinary red firefighter suit", 5},
+        {"Master Firefighter Suit", 15},
     };
     int res = find_value(armors, game.armor);
     return res;
@@ -325,13 +342,6 @@ void aid(game_state& game)
     {
         cout << "No aidkit in inventory. You lost your turn searching for one.\n";
     }
-}
-
-string to_upper(const string& str) 
-{
-    string upper_str = str;
-    transform(upper_str.begin(), upper_str.end(), upper_str.begin(), ::toupper);
-    return upper_str;
 }
 
 // message when players dies
@@ -401,6 +411,9 @@ void end_level(game_state& game)
                         break;
                     case 3:
                         level_3(game);
+                        break;
+                    case 4:
+                        level_4(game);
                         break;
                     default:
                         cout << "Unknown level\n";
@@ -885,6 +898,7 @@ void level_2(game_state& game)
     game.progress++;
     end_level(game);
 }
+
 void level_3(game_state& game)
 {
     if (game.george == 1)
@@ -930,4 +944,409 @@ void level_3(game_state& game)
     sleep(2);
     system("cls");
     print_message("Dragon lies dead.\n");
+    print_message(
+        "As the dragon falls you see that it carried some gold!\n"
+        "Received:\n 40 gold\n"
+        );
+    game.gold += 40;
+    sleep(2);
+    system("cls");
+
+    print_message(
+        "On your way back to the base, you come across a bustling trading post. The merchant greets you warmly and shows you his "
+        "wares. The shop is filled with various goods, including healing supplies, weapons, and rare items. It's a perfect opportunity "
+        "to stock up for your upcoming battles. "
+        "You decide to check out the items available and prepare yourself for the challenges ahead.\n"
+    );
+
+    int choice;
+    bool running = true;
+
+    while (running) 
+    {
+        show_menu();
+        cout << "You have " << game.gold << " gold.\n";
+        cout << "Enter the number of the item you wish to buy: ";
+        cin >> choice;
+
+        switch (choice) 
+        {
+            case 1:
+                if (game.gold >= 10) 
+                {
+                    game.gold -= 10;
+                    cout << "You bought a First Aid Kit.\n";
+                    game.inventory.emplace_back("aidkit");
+                } 
+                else 
+                {
+                    cout << "Not enough gold.\n";
+                }
+                break;
+            case 2:
+                if (game.gold >= 20) 
+                {
+                    game.gold -= 20;
+                    cout << "You bought a Water Bomb.\n";
+                    game.inventory.emplace_back("water-bomb");
+                } 
+                else 
+                {
+                    cout << "Not enough gold.\n";
+                }
+                break;
+            case 3:
+                if (game.gold >= 70) 
+                {
+                    game.gold -= 70;
+                    cout << "You bought a Master Fire Extinguisher.\n";
+                    game.weapon = "Master Fire Extinguisher";
+                } 
+                else 
+                {
+                    cout << "Not enough gold.\n";
+                }
+                break;
+            case 4:
+                if (game.gold >= 70) 
+                {
+                    game.gold -= 70;
+                    cout << "You bought a Master Firefighter Suit.\n";
+                    game.armor = "Master Firefighter Suit";
+                } 
+                else 
+                {
+                    cout << "Not enough gold.\n";
+                }
+                break;
+            case 5:
+                running = false;
+                cout << "Exiting the shop. Goodbye!\n";
+                break;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+                break;
+        }
+    }
+    print_message(
+        "On your way back to the base, you feel the weight of the recent events bearing down on you. The encounter with the dragon has left you with a sense of urgency and purpose "
+        "The path is rough and your thoughts are consumed by the dragon's ominous words. As you approach the base, the familiar sight of the fortress brings a slight sense of relief, but you know your mission is far from over. \n"
+        "Upon reaching the base, you head straight to Captain Arin's quarters to report what happened. "
+        "\"Captain, we have a serious problem,\" you say, catching your breath. \"A dragon attacked us in the city. It spoke, saying it was sent by the Lord of Flames to kill me. \"\n"
+        "\"The Lord of Flames,\" Captain Arin mutters, his expression darkening. \"This is worse than I thought.\"\n\n"
+        "\"We need to take down this Lord of Flames,\" you insist. \"If we don't, the attacks will only get worse.\"\n\n"
+        "Captain Arin nods, a look of determination in his eyes. \"You're right. We'll need to gather our best warriors and prepare for a direct assault. This ends now. \""
+        "\"I'll be ready,\\\" you say, feeling a surge of resolve. \"Let's finish this.\"\n"
+    );
+
+    sleep(2);
+    system("cls");
+
+    print_message(
+        "\"Before we'll move to dragons spire, you should have some rest, we'll prepre for battle.\"\n\n"
+        "You take nap:\n health has been restored to full"
+    );
+    game.hp = 100;
+    game.progress++;
+    end_level(game);
 }
+
+void level_4(game_state& game)
+{
+    print_message(
+        "The journey to the Spire of Dragons is long and arduous. The terrain grows increasingly treacherous as you and your company "
+        "ascend towards the looming peak. Every step is a reminder of the weight of your mission. The air grows hotter, and "
+        "the ground beneath your feet trembles with the distant roars of dragons.\n\n"
+        "At last, you reach the base of the spire. The entrance looms before you, a dark maw set into the mountainside, guarded by "
+        "ancient carvings of dragonkind. Captain Arin stands before the assembled warriors, his eyes fierce with determination."
+        "He raises his voice, calling everyone to attention. \n\n"
+        "\"Brothers and sisters, today we face our greatest challenge,\" he begins. \"The Lord of Flames has threatened our homes, "
+        "our families, and our very lives. But we are the Fire Wing Brigade! We have trained for this moment, "
+        "to stand against the inferno and emerge victorious!\"\n"
+        "\"Remember why we fight! We fight for those who cannot defend themselves. We fight to protect our lands from the terror of "
+        "the skies. We fight for each other, for our unity and our strength!\"\n"
+        "\"Now, as we stand before the lair of our enemy, let our courage burn brighter than the fiercest flame. Together, we will "
+        "bring down the Lord of Flames and restore peace to our world! \"\n\n"
+        "The company roars in response, their spirits lifted by Captain Arin's words. With weapons ready and hearts steeled, you prepare to enter the Spire of Dragons and face your destiny."
+    );
+    sleep(2);
+    system("cls");
+
+    print_message(
+        "As you and your company advance towards the Spire of Dragons, several dragons suddenly block your path. Their eyes burn with malice, and their scales glisten in the fiery light. "
+        "Captain Arin surveys the scene quickly, then turns to you. \n\n"
+        "\"Take the one on the left!\" he orders, his voice steady and commanding. \"We'll handle the others.\"\n"
+        "With a nod, you ready your weapon and prepare to face the dragon. The battle is about to begin, and the fate of your mission rests on your shoulders. "
+    );
+
+    sleep(3);
+    system("cls");
+
+    Enemy dragon("Blue Dragon", 250, 20, 30);
+    int fire = 1;
+    while (dragon.is_alive())
+    {
+        player_turn(game, dragon);
+        if (dragon.is_alive())
+        {
+            if (fire % 3 == 0)
+            {
+                dragon.attack2(game);
+            }
+            else
+            {
+                dragon.attack1(game);
+            }
+        }
+        
+        fire++;
+        cout << "Your health: " << game.hp << endl;
+    }
+    sleep(2);
+    system("cls");
+    print_message("Dragon lies dead.\n\n");
+
+    print_message(
+        "After a fierce battle, you manage to defeat the dragon on the left. Just as you catch your breath, you hear Captain Arin's voice calling out to you. \n\n"
+        "\"Well done! Now, go after the Lord of Flames!\" he shouts, his voice cutting through the chaos. \"We'll hold off the rest of these beasts!\"\n"
+        "With renewed determination, you turn towards the heart of the spire, ready to face the ultimate challenge. The fate of your world rests on this final confrontation. \n"
+    );
+    sleep(2);
+    system("cls");
+
+    print_message(
+        "You climb the stone stairs, each step echoing with the weight of destiny. The air grows hotter, and the distant roars of dragons fill your ears. At last, you stand before a pair of massive doors, their surface covered in ancient runes and carvings of dragonkind.\n"
+        "These doors mark the entrance to the heart of the spire, where the Lord of Flames awaits.\n"
+        "\"This is it,\" you think to yourself, steeling your resolve. \"Time to end this once and for all.\"\n"
+    );
+    if (game.honor > 0)
+    {
+        if (game.george == 1)
+        {
+            if (game.george == 1)
+            {
+                print_message(
+                    "On the left side in corridor, you see familiar face - it's George!\n"
+                    "After him other more faces, citizens, villagers, Jimmy, Saul, Sarah, they are all here to help. \n"
+                    "\"We've heard you needed some help, ha! Let's take down this giant lizard together! \n"
+                );
+            }
+            print_message(
+                "With a deep breath, you push the doors open and step into the chamber beyond, ready to face your destiny. \n"
+                "The hardest battle of your life is about to take begin. \n"
+            );
+            sleep(2);
+            system("cls");
+            Enemy lord_of_flames("Lord of Flames", 400, 30, 50);
+            int fire = 1;
+            while (lord_of_flames.is_alive())
+            {
+                if (game.george == 1)
+                {
+                    lord_of_flames.take_damage(30);
+                    cout << "George attack's dragon for 30 damage\n";
+                }
+                lord_of_flames.take_damage(30);
+                cout << "People of Pyroklas attack dragon for 30 damage\n";
+                player_turn(game, lord_of_flames);
+                if (lord_of_flames.is_alive())
+                {
+                    if (fire % 3 == 0)
+                    {
+                        lord_of_flames.attack2(game);
+                    }
+                    else
+                    {
+                        lord_of_flames.attack1(game);
+                    }
+                }
+                
+                fire++;
+                cout << "Your health: " << game.hp << endl;
+            }
+            sleep(2);
+            system("cls");
+            print_message("Lord of Flames lies dead.\n\n");
+
+            print_message(
+                "The battle with the Lord of Flames was fierce and exhausting. The air was filled with the roar of fire and the clash of steel against scales. But in the end, your determination and skill proved stronger.\n"
+                "As the Lord of Flames falls, the ground shakes and the flames that once filled the chamber begin to fade. The oppressive heat starts to dissipate, and a calm, cool breeze sweeps through the room.\n"
+                "You stand over the fallen dragon, catching your breath and taking in the magnitude of your victory. The Lord of Flames, the terror that threatened your world, is no more.\n"
+                "\"It's over,\" you think to yourself, a mixture of relief and triumph flooding your mind. \"We've done it.\"\n"
+                "Captain Arin and the rest of the company rush into the chamber, their faces a mix of concern and hope. When they see the lifeless form of the Lord of Flames, their expressions change to ones of joy and pride.\n"
+                "\"Well done,\" Captain Arin says, his voice filled with admiration. \"You've saved us all\"\n"
+                "The company gathers around you, offering their congratulations and thanks. Together, you make your way back down the spire, the weight of your victory lifting your spirits.\n"
+                "\"The world is safe once more, thanks to your bravery and the strength of the Fire Wing Brigade.\"\n"
+                "\"This is just the beginning,\" you think to yourself, ready for whatever challenges the future may bring.\n"
+                "Victory: The Lord of Flames has been defeated, and peace has been restored.\n"
+            );  
+        }
+        else
+        {
+            print_message(
+                    "On the left side in corridor, you see familiar faces - People of Pyroklas!\n"
+                    "Citizens, villagers, Jimmy, Saul, Sarah, they are all here to help. \n"
+                    "\"We've heard you needed some help. Fire Brigade has saved as so many times. Now its time we show our graditiude\n"
+                );
+
+            print_message(
+                "With a deep breath, you push the doors open and step into the chamber beyond, ready to face your destiny. \n"
+                "The hardest battle of your life is about to take begin. \n"
+            );
+            sleep(2);
+            system("cls");
+            Enemy lord_of_flames("Lord of Flames", 400, 30, 50);
+            int fire = 1;
+            while (lord_of_flames.is_alive())
+            {
+                if (game.george == 1)
+                {
+                    lord_of_flames.take_damage(30);
+                    cout << "George attack's dragon for 30 damage\n";
+                }
+                lord_of_flames.take_damage(30);
+                cout << "People of Pyroklas attack dragon for 30 damage\n";
+                player_turn(game, lord_of_flames);
+                if (lord_of_flames.is_alive())
+                {
+                    if (fire % 3 == 0)
+                    {
+                        lord_of_flames.attack2(game);
+                    }
+                    else
+                    {
+                        lord_of_flames.attack1(game);
+                    }
+                }
+                
+                fire++;
+                cout << "Your health: " << game.hp << endl;
+            }
+            sleep(2);
+            system("cls");
+            print_message("Lord of Flames lies dead.\n\n");
+
+            print_message(
+                "The battle with the Lord of Flames was fierce and exhausting. The air was filled with the roar of fire and the clash of steel against scales. But in the end, your determination and skill proved stronger.\n"
+                "As the Lord of Flames falls, the ground shakes and the flames that once filled the chamber begin to fade. The oppressive heat starts to dissipate, and a calm, cool breeze sweeps through the room.\n"
+                "You stand over the fallen dragon, catching your breath and taking in the magnitude of your victory. The Lord of Flames, the terror that threatened your world, is no more.\n"
+                "\"It's over,\" you think to yourself, a mixture of relief and triumph flooding your mind. \"We've done it.\"\n"
+                "Captain Arin and the rest of the company rush into the chamber, their faces a mix of concern and hope. When they see the lifeless form of the Lord of Flames, their expressions change to ones of joy and pride.\n"
+                "\"Well done,\" Captain Arin says, his voice filled with admiration. \"You've saved us all\"\n"
+                "The company gathers around you, offering their congratulations and thanks. Together, you make your way back down the spire, the weight of your victory lifting your spirits.\n"
+                "\"The world is safe once more, thanks to your bravery and the strength of the Fire Wing Brigade.\"\n"
+                "\"This is just the beginning,\" you think to yourself, ready for whatever challenges the future may bring.\n"
+                "Victory: The Lord of Flames has been defeated, and peace has been restored.\n"
+            );
+        }
+    }
+    else if (game.honor == 0)
+    {
+        if (game.george == 1)
+        {
+            print_message(
+                "On the left side in corridor, you see familiar face - it's George!\n"
+                "\"I've heard you needed some help, ha! Let's take down this giant lizard together! \n"
+            );
+        }
+        print_message(
+            "With a deep breath, you push the doors open and step into the chamber beyond, ready to face your destiny. \n"
+            "The hardest battle of your life is about to take begin. \n"
+        );
+        sleep(2);
+        system("cls");
+        Enemy lord_of_flames("Lord of Flames", 400, 30, 50);
+        int fire = 1;
+        while (lord_of_flames.is_alive())
+        {
+            if (game.george == 1)
+            {
+                lord_of_flames.take_damage(30);
+                cout << "George attack's dragon for 30 damage\n";
+            }
+            player_turn(game, lord_of_flames);
+            if (lord_of_flames.is_alive())
+            {
+                if (fire % 3 == 0)
+                {
+                    lord_of_flames.attack2(game);
+                }
+                else
+                {
+                    lord_of_flames.attack1(game);
+                }
+            }
+            
+            fire++;
+            cout << "Your health: " << game.hp << endl;
+        }
+        sleep(2);
+        system("cls");
+        print_message("Lord of Flames lies dead.\n\n");
+
+        print_message(
+            "The battle with the Lord of Flames was fierce and exhausting. The air was filled with the roar of fire and the clash of steel against scales. But in the end, your determination and skill proved stronger.\n"
+            "As the Lord of Flames falls, the ground shakes and the flames that once filled the chamber begin to fade. The oppressive heat starts to dissipate, and a calm, cool breeze sweeps through the room.\n"
+            "You stand over the fallen dragon, catching your breath and taking in the magnitude of your victory. The Lord of Flames, the terror that threatened your world, is no more.\n"
+            "\"It's over,\" you think to yourself, a mixture of relief and triumph flooding your mind. \"We've done it.\"\n"
+            "Captain Arin and the rest of the company rush into the chamber, their faces a mix of concern and hope. When they see the lifeless form of the Lord of Flames, their expressions change to ones of joy and pride.\n"
+            "\"Well done,\" Captain Arin says, his voice filled with admiration. \"You've saved us all\"\n"
+            "The company gathers around you, offering their congratulations and thanks. Together, you make your way back down the spire, the weight of your victory lifting your spirits.\n"
+            "\"The world is safe once more, thanks to your bravery and the strength of the Fire Wing Brigade.\"\n"
+            "\"This is just the beginning,\" you think to yourself, ready for whatever challenges the future may bring.\n"
+            "Victory: The Lord of Flames has been defeated, and peace has been restored.\n"
+        );   
+    }
+    else
+    {
+        print_message(
+            "With a deep breath, you push the doors open and step into the chamber beyond, ready to face your destiny. \n"
+            "As you enter the chamber of Lord of Flames you wonder whether you could do more on your journey, perhaps help more people?\n"
+            "But these thoughs must be gone as hardest battle of your life is about to take place\n"
+        );
+
+        Enemy lord_of_flames("Lord of Flames", 400, 30, 50);
+        int fire = 1;
+        while (lord_of_flames.is_alive())
+        {
+            player_turn(game, lord_of_flames);
+            if (lord_of_flames.is_alive())
+            {
+                if (fire % 3 == 0)
+                {
+                    lord_of_flames.attack2(game);
+                }
+                else
+                {
+                    lord_of_flames.attack1(game);
+                }
+            }
+            
+            fire++;
+            cout << "Your health: " << game.hp << endl;
+        }
+        sleep(2);
+        system("cls");
+        print_message("Lord of Flames lies dead.\n\n");
+
+        print_message(
+            "The battle with the Lord of Flames was fierce and exhausting. The air was filled with the roar of fire and the clash of steel against scales. But in the end, your determination and skill proved stronger.\n"
+            "As the Lord of Flames falls, the ground shakes and the flames that once filled the chamber begin to fade. The oppressive heat starts to dissipate, and a calm, cool breeze sweeps through the room.\n"
+            "You stand over the fallen dragon, catching your breath and taking in the magnitude of your victory. The Lord of Flames, the terror that threatened your world, is no more.\n"
+            "\"It's over,\" you think to yourself, a mixture of relief and triumph flooding your mind. \"We've done it.\"\n"
+            "Captain Arin and the rest of the company rush into the chamber, their faces a mix of concern and hope. When they see the lifeless form of the Lord of Flames, their expressions change to ones of joy and pride.\n"
+            "\"Well done,\" Captain Arin says, his voice filled with admiration. \"You've saved us all\"\n"
+            "The company gathers around you, offering their congratulations and thanks. Together, you make your way back down the spire, the weight of your victory lifting your spirits.\n"
+            "\"The world is safe once more, thanks to your bravery and the strength of the Fire Wing Brigade.\"\n"
+            "\"This is just the beginning,\" you think to yourself, ready for whatever challenges the future may bring.\n"
+            "Victory: The Lord of Flames has been defeated, and peace has been restored.\n"
+        );
+    }
+    sleep(3);
+    system("cls");
+    print_message("The End\n");
+    print_message("Thanks for playing");
+    sleep(600);
+    system("cls");
+}
+    
